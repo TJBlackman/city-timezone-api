@@ -11,7 +11,16 @@ Deno.serve((req: Request) => {
       return new Response("Not Found", { status: 404 });
     }
 
-    const urlParams = new URL(req.url).pathname.split("/");
+    const url = new URL(req.url);
+    if (url.pathname === "/") {
+      const html = Deno.readFileSync("./index.html");
+      return new Response(html, {
+        headers: { "content-type": "text/html" },
+      });
+    }
+
+    const urlParams = url.pathname.split("/");
+
     if (
       urlParams.length !== 4 ||
       urlParams[1] !== "api" ||

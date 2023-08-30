@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1 id="city-timezone-api">City Timezone API</h1>
+    <p>
+      This is a Deno module for getting the timezone of a city from a predefined
+      list of cities. It is meant to be deployed with Deno deploy.
+    </p>
+    <h2 id="usage">Usage</h2>
+    <p>
+      Send an API request to the URL it is deployed at with the city name as a
+      URL parameter. The response will be a JSON object with the city name and
+      timezone.
+    </p>
+    <pre><code>curl --location 'http://city-timezone-api.deno.dev/api/cities/paris'
+
+// response JSON
+{
+  "name": "Paris",
+  "lat": 48.86669293,
+  "lng": 2.333335326,
+  "population": 4957588.5,
+  "country": "France",
+  "province": "Île-de-France",
+  "timezone": "Europe/Paris",
+  "utcTime": "08/30/2023, 02:14:16 PM"
+}
+</code></pre>
+    <h2 id="github-repo">Github Repo</h2>
+    <p>
+      <a href="https://github.com/TJBlackman/city-timezone-api"
+        >https://github.com/TJBlackman/city-timezone-api</a
+      >
+    </p>
+    <h2 id="data">Data</h2>
+    <p>
+      The origin data came from this github repo:
+      <a href="https://github.com/kevinroberts/city-timezones"
+        >https://github.com/kevinroberts/city-timezones</a
+      >
+    </p>
+    <p>
+      I modified the original data to remove what I don&#39;t need, and sorted
+      the cities by highest population to lowest population.
+    </p>
+  </body>
+</html>
