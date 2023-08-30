@@ -33,28 +33,29 @@ Deno.serve((req: Request) => {
     }
 
     const targetCity = decodeURIComponent(urlParams[3].toLowerCase());
-    let foundCity = null;
+    const found = [];
     let i = 0;
     const iMax = cities.length;
     while (i < iMax) {
       const currentCity = cities[i];
       const currentCityLowercase = currentCity.name.toLowerCase();
       if (currentCityLowercase === targetCity) {
-        foundCity = cities[i];
-        break;
+        found.push(currentCity);
       }
       i++;
     }
 
-    if (!foundCity) {
+    if (!found) {
       return new Response("Not Found", { status: 404 });
     }
+    const date = new Date();
+    found.forEach((city) => {
+      const utcTime = getCurrentTimeInTimeZone(city.timezone!, date);
+      // @ts-ignore: append this new property to the object
+      city.utcTime = utcTime;
+    });
 
-    const utcTime = getCurrentTimeInTimeZone(foundCity.timezone!);
-    // @ts-ignore: don't care about this
-    foundCity.utcTime = utcTime;
-
-    return new Response(JSON.stringify(foundCity), {
+    return new Response(JSON.stringify(found), {
       headers: { "content-type": "application/json" },
     });
   } catch (error) {
@@ -72,8 +73,7 @@ Deno.serve((req: Request) => {
  * @param {string} timeZone - The IANA time zone string (e.g., "America/New_York").
  * @returns {string} The formatted date and time in the given timezone.
  */
-function getCurrentTimeInTimeZone(timeZone: string) {
-  const date = new Date();
+function getCurrentTimeInTimeZone(timeZone: string, date: Date) {
   const options = {
     timeZone,
     hour12: true,

@@ -8,28 +8,30 @@
   <body>
     <h1 id="city-timezone-api">City Timezone API</h1>
     <p>
-      This is a Deno module for getting the timezone of a city from a predefined
+      This is a free API for getting the timezone of a city from a predefined
       list of cities. It is meant to be deployed with Deno deploy.
     </p>
     <h2 id="usage">Usage</h2>
     <p>
-      Send an API request to the URL it is deployed at with the city name as a
-      URL parameter. The response will be a JSON object with the city name and
-      timezone.
+      Send an API request to this API with the city name as a URL parameter. The
+      JSON response will contain an array of matching cities and their
+      information.
     </p>
     <pre><code>curl --location &#39;https://city-timezone-api.deno.dev/api/cities/paris&#39;
 
 // response
-{
-  &quot;name&quot;: &quot;Paris&quot;,
-  &quot;lat&quot;: 48.86669293,
-  &quot;lng&quot;: 2.333335326,
-  &quot;population&quot;: 4957588.5,
-  &quot;country&quot;: &quot;France&quot;,
-  &quot;province&quot;: &quot;Île-de-France&quot;,
-  &quot;timezone&quot;: &quot;Europe/Paris&quot;,
-  &quot;utcTime&quot;: &quot;08/30/2023, 02:14:16 PM&quot;
-}
+[
+  {
+    &quot;name&quot;: &quot;Paris&quot;,
+    &quot;lat&quot;: 48.86669293,
+    &quot;lng&quot;: 2.333335326,
+    &quot;population&quot;: 4957588.5,
+    &quot;country&quot;: &quot;France&quot;,
+    &quot;province&quot;: &quot;Île-de-France&quot;,
+    &quot;timezone&quot;: &quot;Europe/Paris&quot;,
+    &quot;utcTime&quot;: &quot;08/30/2023, 04:57:53 PM&quot;
+  }
+]
 </code></pre>
     <h2 id="example">Example</h2>
     <p>Click a URL below to view an example.</p>
@@ -40,13 +42,13 @@
         >
       </li>
       <li>
-        <a href="https://city-timezone-api.deno.dev/api/cities/los angeles"
+        <a href="https://city-timezone-api.deno.dev/api/cities/los%20angeles"
           >https://city-timezone-api.deno.dev/api/cities/los angeles</a
         >
       </li>
       <li>
-        <a href="https://city-timezone-api.deno.dev/api/cities/tokyo"
-          >https://city-timezone-api.deno.dev/api/cities/tokyo</a
+        <a href="https://city-timezone-api.deno.dev/api/cities/trinidad"
+          >https://city-timezone-api.deno.dev/api/cities/trinidad</a
         >
       </li>
     </ul>
