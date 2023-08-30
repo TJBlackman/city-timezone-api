@@ -6,47 +6,55 @@ import cities from "./cities.json" assert { type: "json" };
  *
  */
 Deno.serve((req: Request) => {
-  if (req.method !== "GET") {
-    return new Response("Not Found", { status: 404 });
-  }
-
-  const urlParams = new URL(req.url).pathname.split("/");
-  if (
-    urlParams.length !== 4 ||
-    urlParams[1] !== "api" ||
-    urlParams[2] !== "cities"
-  ) {
-    return new Response(
-      "Bad Request. Expected request to /api/cities/{cityName}",
-      { status: 400 }
-    );
-  }
-
-  const targetCity = urlParams[3].toLowerCase();
-  let foundCity = null;
-  let i = 0;
-  const iMax = cities.length;
-  while (i < iMax) {
-    const currentCity = cities[i];
-    const currentCityLowercase = currentCity.name.toLowerCase();
-    if (currentCityLowercase === targetCity) {
-      foundCity = cities[i];
-      break;
+  try {
+    if (req.method !== "GET") {
+      return new Response("Not Found", { status: 404 });
     }
-    i++;
+
+    const urlParams = new URL(req.url).pathname.split("/");
+    if (
+      urlParams.length !== 4 ||
+      urlParams[1] !== "api" ||
+      urlParams[2] !== "cities"
+    ) {
+      return new Response(
+        "Bad Request. Expected request to /api/cities/{cityName}",
+        { status: 400 }
+      );
+    }
+
+    const targetCity = decodeURIComponent(urlParams[3].toLowerCase());
+    let foundCity = null;
+    let i = 0;
+    const iMax = cities.length;
+    while (i < iMax) {
+      const currentCity = cities[i];
+      const currentCityLowercase = currentCity.name.toLowerCase();
+      if (currentCityLowercase === targetCity) {
+        foundCity = cities[i];
+        break;
+      }
+      i++;
+    }
+
+    if (!foundCity) {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    const utcTime = getCurrentTimeInTimeZone(foundCity.timezone!);
+    // @ts-ignore: don't care about this
+    foundCity.utcTime = utcTime;
+
+    return new Response(JSON.stringify(foundCity), {
+      headers: { "content-type": "application/json" },
+    });
+  } catch (error) {
+    let msg = undefined;
+    if (error instanceof Error) {
+      msg = `:\n${error.message}`;
+    }
+    return new Response(`Internal Server Error${msg}`, { status: 500 });
   }
-
-  if (!foundCity) {
-    return new Response("Not Found", { status: 404 });
-  }
-
-  const utcTime = getCurrentTimeInTimeZone(foundCity.timezone!);
-  // @ts-ignore: don't care about this
-  foundCity.utcTime = utcTime;
-
-  return new Response(JSON.stringify(foundCity), {
-    headers: { "content-type": "application/json" },
-  });
 });
 
 /**
