@@ -22,11 +22,19 @@ curl --location 'https://city-timezone-api.deno.dev/api/cities/paris'
 }
 ```
 
-## Github Repo
+## Example
+
+Click a URL below to view an example.
+
+- https://city-timezone-api.deno.dev/api/cities/paris
+- https://city-timezone-api.deno.dev/api/cities/los%20angeles
+- https://city-timezone-api.deno.dev/api/cities/tokyo
+
+### Github Repo
 
 https://github.com/TJBlackman/city-timezone-api
 
-## Data
+### Data
 
 The origin data came from this github repo: https://github.com/kevinroberts/city-timezones
 
