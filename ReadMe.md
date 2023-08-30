@@ -7,7 +7,7 @@ This is a Deno module for getting the timezone of a city from a predefined list 
 Send an API request to the URL it is deployed at with the city name as a URL parameter. The response will be a JSON object with the city name and timezone.
 
 ```
-curl --location 'http://city-timezone-api.deno.dev/api/cities/paris'
+curl --location 'https://city-timezone-api.deno.dev/api/cities/paris'
 
 // response
 {
