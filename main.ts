@@ -12,6 +12,8 @@ Deno.serve((req: Request) => {
     }
 
     const url = new URL(req.url);
+
+    // home page html
     if (url.pathname === "/") {
       const html = Deno.readFileSync("./index.html");
       return new Response(html, {
@@ -19,38 +21,89 @@ Deno.serve((req: Request) => {
       });
     }
 
-    const urlParams = url.pathname.split("/");
-
-    if (
-      urlParams.length !== 4 ||
-      urlParams[1] !== "api" ||
-      urlParams[2] !== "cities"
-    ) {
-      return new Response(
-        "Bad Request. Expected request to /api/cities/{cityName}",
-        { status: 400 }
-      );
+    // require /api route
+    if (url.pathname !== "/api") {
+      return new Response("Bad Request", { status: 400 });
     }
 
-    const targetCity = decodeURIComponent(urlParams[3].toLowerCase());
-    const found = [];
-    let i = 0;
-    const iMax = cities.length;
-    while (i < iMax) {
-      const currentCity = cities[i];
-      const currentCityLowercase = currentCity.name.toLowerCase();
-      if (currentCityLowercase === targetCity) {
-        found.push(currentCity);
+    const lat = url.searchParams.get("lat");
+    const long = url.searchParams.get("long");
+    const city = url.searchParams.get("city")?.toLowerCase();
+    let province = url.searchParams.get("province")?.toLowerCase();
+    if (!province) {
+      province = url.searchParams.get("state")?.toLowerCase();
+    }
+
+    // if no query params, return empty array
+    if (!lat && !long && !city && !province) {
+      return new Response(JSON.stringify([]), {
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    // fuzzy match all params provided by user
+    let found = [];
+    for (const currentCity of cities) {
+      if (lat !== null) {
+        if (!currentCity.lat.includes(lat)) {
+          continue;
+        }
       }
-      i++;
+      if (long !== null) {
+        if (!currentCity.long.includes(long)) {
+          continue;
+        }
+      }
+      if (city !== undefined) {
+        if (!currentCity.name.toLowerCase().includes(city)) {
+          continue;
+        }
+      }
+      if (province !== undefined) {
+        if (!currentCity.province?.toLowerCase().includes(province)) {
+          continue;
+        }
+      }
+      found.push(currentCity);
     }
 
-    if (!found) {
-      return new Response("Not Found", { status: 404 });
+    // exact match all params provided by user
+    const match = url.searchParams.get("match")?.toLowerCase();
+    if (match === "exact") {
+      const exactMatch = [];
+      for (const currentCity of found) {
+        if (lat !== null) {
+          if (currentCity.lat !== lat) {
+            continue;
+          }
+        }
+        if (long !== null) {
+          if (currentCity.long !== long) {
+            continue;
+          }
+        }
+        if (city !== undefined) {
+          if (currentCity.name.toLowerCase() !== city) {
+            continue;
+          }
+        }
+        if (province !== undefined) {
+          if (currentCity.province?.toLowerCase() !== province) {
+            continue;
+          }
+        }
+        exactMatch.push(currentCity);
+      }
+      found = exactMatch;
     }
+
+    // calculate UTC time for each found city
     const date = new Date();
     found.forEach((city) => {
-      const utcTime = getCurrentTimeInTimeZone(city.timezone!, date);
+      if (!city.timezone) {
+        return;
+      }
+      const utcTime = getCurrentTimeInTimeZone(city.timezone, date);
       // @ts-ignore: append this new property to the object
       city.utcTime = utcTime;
     });
@@ -73,16 +126,18 @@ Deno.serve((req: Request) => {
  * @param {string} timeZone - The IANA time zone string (e.g., "America/New_York").
  * @returns {string} The formatted date and time in the given timezone.
  */
+const options = {
+  timeZone: "",
+  hour12: true,
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+};
 function getCurrentTimeInTimeZone(timeZone: string, date: Date) {
-  const options = {
-    timeZone,
-    hour12: true,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  } as const;
+  options.timeZone = timeZone;
+  // @ts-ignore: options are correct
   return new Intl.DateTimeFormat("en-US", options).format(date);
 }

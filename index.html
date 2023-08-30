@@ -4,51 +4,152 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>City Timezone API</title>
+    <style>
+      * {
+        font-family: sans-serif;
+      }
+      code {
+        font-family: monospace;
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body>
     <h1 id="city-timezone-api">City Timezone API</h1>
     <p>
-      This is a free API for getting the timezone of a city from a predefined
-      list of cities. It is meant to be deployed with Deno deploy.
+      This is an API for getting the timezone of a city from a predefined list
+      of cities. It is meant to be deployed with Deno deploy.
     </p>
     <h2 id="usage">Usage</h2>
     <p>
-      Send an API request to this API with the city name as a URL parameter. The
-      JSON response will contain an array of matching cities and their
+      Send a GET request to this API with the correct query parameters to query
+      data. The JSON response will contain an array of matching cities and their
       information.
     </p>
-    <pre><code>curl --location &#39;https://city-timezone-api.deno.dev/api/cities/paris&#39;
+    <pre><code>curl --location &#39;https://city-timezone-api.deno.dev/api?city=denver&#39;
 
 // response
 [
-  {
-    &quot;name&quot;: &quot;Paris&quot;,
-    &quot;lat&quot;: 48.86669293,
-    &quot;lng&quot;: 2.333335326,
-    &quot;population&quot;: 4957588.5,
-    &quot;country&quot;: &quot;France&quot;,
-    &quot;province&quot;: &quot;Île-de-France&quot;,
-    &quot;timezone&quot;: &quot;Europe/Paris&quot;,
-    &quot;utcTime&quot;: &quot;08/30/2023, 04:57:53 PM&quot;
-  }
+    {
+        &quot;name&quot;: &quot;Denver&quot;,
+        &quot;lat&quot;: &quot;39.73918805&quot;,
+        &quot;population&quot;: &quot;1930799.5&quot;,
+        &quot;country&quot;: &quot;United States of America&quot;,
+        &quot;province&quot;: &quot;Colorado&quot;,
+        &quot;timezone&quot;: &quot;America/Denver&quot;,
+        &quot;long&quot;: &quot;-104.984016&quot;,
+        &quot;utcTime&quot;: &quot;08/30/2023, 11:05:30 AM&quot;
+    }
 ]
 </code></pre>
+    <h3 id="supported-query-parameters">Supported Query Parameters</h3>
+    <ul>
+      <li><code>city</code> - The name of the city to search for.</li>
+      <li>
+        <code>province</code> - The name of the province to search for
+        (interchangeable with state).
+      </li>
+      <li>
+        <code>state</code> - The name of the state to search for
+        (interchangeable with province).
+      </li>
+      <li><code>lat</code> - The latitude of the city to search for.</li>
+      <li><code>long</code> - The longitude of the city to search for.</li>
+      <li>
+        <code>match</code> - The type of match to use. Can be
+        <code>exact</code> or <code>fuzzy</code>. Defaults to
+        <code>fuzzy</code>.
+      </li>
+    </ul>
+    <h3 id="fuzzy-search-default">Fuzzy Search (Default)</h3>
+    <p>
+      A fuzzy search will return all results where a query param is a
+      partial-match of a it&#39;s corresponding value. For example, if you
+      search for <code>city=den</code>, you will get back all cities that
+      contain <code>den</code> in their name.
+    </p>
+    <ul>
+      <li>
+        <code>city=den</code>
+        <ul>
+          <li>
+            This returns 41 results, including <code>Denver</code>,
+            <code>Aden</code>, <code>Dresden</code>, etc.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <code>city=den&amp;state=co</code>
+        <ul>
+          <li>
+            This returns 3 results; where <code>den</code> is in the city name
+            and <code>co</code> is in the state/province name.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <code>lat=521</code>
+        <ul>
+          <li>
+            Returns 19 results, where <code>521</code> is anywhere in the
+            latitude of the city.
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <h3 id="exact-search">Exact Search</h3>
+    <p>
+      An exact search will return all results where a query param is an
+      exact-match of a it&#39;s corresponding value. For example, if you search
+      for <code>city=den&amp;match=exact</code>, you will get back all cities
+      whose name is exactly <code>den</code> - which is 0. The proper search
+      would be <code>city=denver&amp;match=exact</code> which would return 1
+      result.
+    </p>
+    <ul>
+      <li>
+        <code>city=trinidad&amp;match=exact</code>
+        <ul>
+          <li>
+            This returns 3 results, where all 3 cities are named
+            <code>Trinidad</code>.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <code>lat=-14.83&amp;match=exact</code>
+        <ul>
+          <li>
+            Returns 0 results. No cities have a latitude of <code>-14.83</code>.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <code>city=trinidad&amp;lat=-14.83337238&amp;match=exact</code>
+        <ul>
+          <li>
+            This returns 1 results, where the city is named
+            <code>Trinidad</code> and the latitude is <code>-14.83337238</code>.
+          </li>
+        </ul>
+      </li>
+    </ul>
     <h2 id="example">Example</h2>
     <p>Click a URL below to view an example.</p>
     <ul>
       <li>
-        <a href="https://city-timezone-api.deno.dev/api/cities/paris"
-          >https://city-timezone-api.deno.dev/api/cities/paris</a
+        <a href="https://city-timezone-api.deno.dev/api?city=den"
+          >https://city-timezone-api.deno.dev/api?city=den</a
         >
       </li>
       <li>
-        <a href="https://city-timezone-api.deno.dev/api/cities/los%20angeles"
-          >https://city-timezone-api.deno.dev/api/cities/los angeles</a
+        <a href="https://city-timezone-api.deno.dev/api?city=den&state=co"
+          >https://city-timezone-api.deno.dev/api?city=den&amp;state=co</a
         >
       </li>
       <li>
-        <a href="https://city-timezone-api.deno.dev/api/cities/trinidad"
-          >https://city-timezone-api.deno.dev/api/cities/trinidad</a
+        <a href="https://city-timezone-api.deno.dev/api?city=denver&match=exact"
+          >https://city-timezone-api.deno.dev/api?city=denver&amp;match=exact</a
         >
       </li>
     </ul>
